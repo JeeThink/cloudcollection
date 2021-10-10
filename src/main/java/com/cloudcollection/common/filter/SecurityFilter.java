@@ -67,7 +67,7 @@ public class SecurityFilter implements Filter {
 						if(StringUtils.isNotBlank(value)){
 							userId = Long.parseLong(value);
 						}
-						User user = userRepository.findOne(userId);
+						User user = userRepository.findById(userId).orElse(new User());
 						String html = "";
 						if(null == user){
 							html = "<script type=\"text/javascript\">window.location.href=\"_BP_login\"</script>";

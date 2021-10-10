@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 /**
  * Created by lizhi on 2017/9/7.
@@ -52,5 +53,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("update User set backgroundPicture=:backgroundPicture where id=:id")
     int setBackgroundPicture(@Param("backgroundPicture") String backgroundPicture, @Param("id") Long id);
 
-    User findById(Long id);
+    Optional<User> findById(Long id);
 }

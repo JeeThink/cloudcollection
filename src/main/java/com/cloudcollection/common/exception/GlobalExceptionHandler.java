@@ -1,10 +1,11 @@
 package com.cloudcollection.common.exception;
 
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by DingYS on 2017/2/20.

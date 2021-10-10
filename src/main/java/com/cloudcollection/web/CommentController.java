@@ -1,15 +1,5 @@
 package com.cloudcollection.web;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.cloudcollection.domain.Collect;
 import com.cloudcollection.domain.Comment;
 import com.cloudcollection.domain.User;
@@ -20,6 +10,14 @@ import com.cloudcollection.repository.UserRepository;
 import com.cloudcollection.service.NoticeService;
 import com.cloudcollection.utils.DateUtils;
 import com.cloudcollection.utils.StringUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 @RequestMapping("/comment")
@@ -68,7 +66,7 @@ public class CommentController extends BaseController{
 			noticeService.saveNotice(String.valueOf(comment.getCollectId()), "comment", user.getId(), String.valueOf(comment.getId()));
 		}else{
 			// 保存消息通知（直接评论）
-			Collect collect = colloectRepository.findOne(comment.getCollectId());
+			Collect collect = colloectRepository.findById(comment.getCollectId()).orElse(new Collect());
 			if(null != collect){
 				noticeService.saveNotice(String.valueOf(comment.getCollectId()), "comment", collect.getUserId(), String.valueOf(comment.getId()));
 			}
@@ -113,12 +111,12 @@ public class CommentController extends BaseController{
 	 */
 	private List<Comment> convertComment(List<Comment> comments) {
 		for (Comment comment : comments) {
-			User user = userRepository.findOne(comment.getUserId());
+			User user = userRepository.findById(comment.getUserId()).orElse(new User());
 			comment.setCommentTime(comment.getCreateTime());
 			comment.setUserName(user.getUserName());
 			comment.setProfilePicture(user.getProfilePicture());
 			if(comment.getReplyUserId()!=null){
-		     User replyUser = userRepository.findOne(comment.getReplyUserId());
+		     User replyUser = userRepository.findById(comment.getReplyUserId()).orElse(new User());
 		     comment.setReplyUserName(replyUser.getUserName());
 			}
 		}

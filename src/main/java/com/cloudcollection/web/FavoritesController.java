@@ -1,22 +1,11 @@
 package com.cloudcollection.web;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.cloudcollection.common.aop.LoggerManage;
 import com.cloudcollection.domain.Config;
 import com.cloudcollection.domain.Favorites;
 import com.cloudcollection.domain.enums.CollectType;
-import com.cloudcollection.domain.enums.IsDelete;
 import com.cloudcollection.domain.enums.ExceptionMsg;
+import com.cloudcollection.domain.enums.IsDelete;
 import com.cloudcollection.domain.result.Response;
 import com.cloudcollection.domain.result.ResponseData;
 import com.cloudcollection.repository.CollectRepository;
@@ -24,6 +13,15 @@ import com.cloudcollection.repository.ConfigRepository;
 import com.cloudcollection.repository.FavoritesRepository;
 import com.cloudcollection.service.FavoritesService;
 import com.cloudcollection.utils.DateUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 @RequestMapping("/favorites")
@@ -94,7 +92,7 @@ public class FavoritesController extends BaseController{
 	@LoggerManage(description="修改收藏夹")
 	public Response updateFavorites(String favoritesName,Long favoritesId){
 		if(StringUtils.isNotBlank(favoritesName)&& null != favoritesId){
-			Favorites fav = favoritesRepository.findOne(favoritesId);
+			Favorites fav = favoritesRepository.findById(favoritesId).orElse(new Favorites());
 			if(null != fav && getUserId().longValue() == fav.getUserId().longValue()){
 				Favorites favorites = favoritesRepository.findByUserIdAndName(getUserId(), favoritesName);
 				if(null != favorites){
@@ -127,9 +125,9 @@ public class FavoritesController extends BaseController{
 			return result(ExceptionMsg.FAILED);
 		}
 		try {
-			Favorites fav = favoritesRepository.findOne(id);
+			Favorites fav = favoritesRepository.findById(id).orElse(new Favorites());
 			if(null != fav && getUserId().longValue() == fav.getUserId().longValue()){
-				favoritesRepository.delete(id);
+				favoritesRepository.deleteById(id);
 				// 删除该收藏夹下文章
 				collectRepository.deleteByFavoritesId(id);
 				Config config = configRespository.findByUserIdAndDefaultFavorties(getUserId(),String.valueOf(id));

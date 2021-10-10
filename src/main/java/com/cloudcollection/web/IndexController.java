@@ -78,7 +78,7 @@ public class IndexController extends BaseController{
 	public String home(Model model) {
 		long size= collectRepository.countByUserIdAndIsDelete(getUserId(),IsDelete.No);
 		Config config = configRepository.findByUserId(getUserId());
-		Favorites favorites = favoritesRepository.findOne(Long.parseLong(config.getDefaultFavorties()));
+		Favorites favorites = favoritesRepository.findById(Long.parseLong(config.getDefaultFavorties())).orElse(new Favorites());
 		List<String> followList = followRepository.findByUserId(getUserId());
 		model.addAttribute("config",config);
 		model.addAttribute("favorites",favorites);
@@ -102,8 +102,8 @@ public class IndexController extends BaseController{
 							 @RequestParam(value = "size", defaultValue = "15") Integer size,
 							 @PathVariable("category") String category) {
 
-		Sort sort = new Sort(Sort.Direction.DESC, "id");
-		Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Sort.Direction.DESC, "id");
+		Pageable pageable = PageRequest.of(page, size, sort);
 		model.addAttribute("category", category);
 		model.addAttribute("type", "lookAround");
 		Favorites favorites = new Favorites();
@@ -135,8 +135,8 @@ public class IndexController extends BaseController{
 									 @RequestParam(value = "size", defaultValue = "20") Integer size,
 									 @PathVariable("category") String category) {
 
-		Sort sort = new Sort(Sort.Direction.DESC, "id");
-		Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Sort.Direction.DESC, "id");
+		Pageable pageable = PageRequest.of(page, size, sort);
 		model.addAttribute("category", category);
 		model.addAttribute("type", "lookAround");
 		Favorites favorites = new Favorites();
@@ -203,7 +203,7 @@ public class IndexController extends BaseController{
 	@LoggerManage(description="意见反馈页面")
 	public String feedback(Model model){
 		User user = null;
-		user = userRepository.findOne(getUserId());
+		user = userRepository.findById(getUserId()).orElse(new User());
 		model.addAttribute("user", user);
 		return "favorites/feedback";
 	}
@@ -282,10 +282,10 @@ public class IndexController extends BaseController{
     @LoggerManage(description="首页收藏家个人首页")
     public String collectorPageShow(Model model, @PathVariable("userId") Long userId, @PathVariable("favoritesId") Long favoritesId, @RequestParam(value = "page", defaultValue = "0") Integer page,
                                  @RequestParam(value = "size", defaultValue = "15") Integer size){
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId).orElse(new User());
         Long collectCount = 0l;
-        Sort sort = new Sort(Sort.Direction.DESC, "id");
-        Pageable pageable = new PageRequest(page, size, sort);
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        Pageable pageable = PageRequest.of(page, size, sort);
         List<CollectSummary> collects = null;
         Integer isFollow = 0;
         if(getUserId().longValue() == userId.longValue()){

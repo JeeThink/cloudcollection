@@ -1,17 +1,6 @@
 package com.cloudcollection.service.impl;
 
-import java.util.*;
-
-import javax.transaction.Transactional;
-
 import com.cloudcollection.cache.CacheService;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import com.cloudcollection.domain.Collect;
 import com.cloudcollection.domain.Favorites;
 import com.cloudcollection.domain.Praise;
@@ -20,18 +9,24 @@ import com.cloudcollection.domain.enums.CollectType;
 import com.cloudcollection.domain.enums.IsDelete;
 import com.cloudcollection.domain.view.CollectSummary;
 import com.cloudcollection.domain.view.CollectView;
-import com.cloudcollection.repository.CollectRepository;
-import com.cloudcollection.repository.CommentRepository;
-import com.cloudcollection.repository.FavoritesRepository;
-import com.cloudcollection.repository.FollowRepository;
-import com.cloudcollection.repository.PraiseRepository;
-import com.cloudcollection.repository.UserRepository;
+import com.cloudcollection.repository.*;
 import com.cloudcollection.service.CollectService;
 import com.cloudcollection.service.FavoritesService;
 import com.cloudcollection.service.NoticeService;
 import com.cloudcollection.utils.DateUtils;
 import com.cloudcollection.utils.HtmlUtil;
 import com.cloudcollection.utils.StringUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service("collectService")
 public class CollectServiceImpl extends CacheService implements CollectService {
@@ -186,7 +181,7 @@ public class CollectServiceImpl extends CacheService implements CollectService {
 	 */
 	@Transactional
 	public void updateCollect(Collect newCollect) {
-		Collect collect=collectRepository.findOne(newCollect.getId());
+		Collect collect=collectRepository.findById(newCollect.getId()).orElse(new Collect());
 		if(StringUtils.isNotBlank(newCollect.getNewFavorites())){
 			collect.setFavoritesId(createfavorites(newCollect.getNewFavorites(), collect.getUserId()));
 		}else if(!collect.getFavoritesId().equals(newCollect.getFavoritesId()) && !IsDelete.YES.equals(collect.getIsDelete())){
@@ -224,7 +219,7 @@ public class CollectServiceImpl extends CacheService implements CollectService {
 	 */
 	@Transactional
 	public void otherCollect(Collect collect) {
-		Collect other=collectRepository.findOne(collect.getId());
+		Collect other=collectRepository.findById(collect.getId()).orElse(new Collect());
 		//收藏别人文章默认给点赞
 		collectLike(collect.getUserId(),other.getId());
 		if(StringUtils.isNotBlank(collect.getNewFavorites())){
@@ -271,7 +266,7 @@ public class CollectServiceImpl extends CacheService implements CollectService {
 			}
 		}else{
 			if(collect.getId() != null){
-				Collect c = collectRepository.findOne(collect.getId());
+				Collect c = collectRepository.findById(collect.getId()).orElse(new Collect());
 				if(c.getFavoritesId().longValue() == collect.getFavoritesId().longValue()){
 					return true;
 				}else{
@@ -345,7 +340,7 @@ public class CollectServiceImpl extends CacheService implements CollectService {
 	 */
 	public StringBuilder exportToHtml(Long favoritesId){
 		try {
-			Favorites favorites = favoritesRepository.findOne(favoritesId);
+			Favorites favorites = favoritesRepository.findById(favoritesId).orElse(new Favorites());
 			StringBuilder sb = new StringBuilder();
 			List<Collect> collects = collectRepository.findByFavoritesIdAndIsDelete(favoritesId,IsDelete.No);
 			StringBuilder sbc = new StringBuilder();
@@ -414,12 +409,12 @@ public class CollectServiceImpl extends CacheService implements CollectService {
 			newPraise.setCreateTime(DateUtils.getCurrentDateTime());
 			praiseRepository.save(newPraise);
 			// 保存消息通知
-			Collect collect = collectRepository.findOne(id);
+			Collect collect = collectRepository.findById(id).orElse(new Collect());
 			if(null != collect){
 				noticeService.saveNotice(String.valueOf(id), "praise", collect.getUserId(), String.valueOf(newPraise.getId()));
 			}
 		}else if(praise.getUserId().equals(userId)){
-			praiseRepository.delete(praise.getId());
+			praiseRepository.deleteById(praise.getId());
 		}
 	}
 
@@ -437,7 +432,7 @@ public class CollectServiceImpl extends CacheService implements CollectService {
 			newPraise.setCreateTime(DateUtils.getCurrentDateTime());
 			praiseRepository.save(newPraise);
 			// 保存消息通知
-			Collect collect = collectRepository.findOne(id);
+			Collect collect = collectRepository.findById(id).orElse(new Collect());
 			if(null != collect){
 				noticeService.saveNotice(String.valueOf(id), "praise", collect.getUserId(), String.valueOf(newPraise.getId()));
 			}

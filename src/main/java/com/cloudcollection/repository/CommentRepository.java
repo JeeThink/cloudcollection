@@ -1,13 +1,11 @@
 package com.cloudcollection.repository;
-import java.util.List;
-
-import javax.transaction.Transactional;
-
+import com.cloudcollection.domain.Comment;
+import com.cloudcollection.domain.view.CommentView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.cloudcollection.domain.Comment;
-import com.cloudcollection.domain.view.CommentView;
+import javax.transaction.Transactional;
+import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
@@ -19,7 +17,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 	List<Comment> findByCollectIdOrderByIdDesc(Long collectId);
 	
 	@Transactional
-	Long deleteById(Long id);
+	void deleteById(Long id);
 
 	
 	@Query(findReplyUserSql+ " and c.id=?1")

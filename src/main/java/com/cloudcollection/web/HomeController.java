@@ -54,13 +54,13 @@ public class HomeController extends BaseController{
 	@LoggerManage(description="文章列表standard")
 	public String standard(Model model,@RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "15") Integer size,@PathVariable("type") String type,@PathVariable("userId") Long userId) {
-		Sort sort = new Sort(Direction.DESC, "id");
-	    Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Direction.DESC, "id");
+	    Pageable pageable = PageRequest.of(page, size, sort);
 		model.addAttribute("type", type);
 		Favorites favorites = new Favorites();
 		if(!"my".equals(type)&&!"explore".equals(type) && !"garbage".equals(type)){
 			try {
-				favorites = favoritesRepository.findOne(Long.parseLong(type));
+				favorites = favoritesRepository.findById(Long.parseLong(type)).orElse(new Favorites());
 				favorites.setPublicCount(collectRepository.countByFavoritesIdAndTypeAndIsDelete(favorites.getId(), CollectType.PUBLIC,IsDelete.No));
 			} catch (Exception e) {
 				logger.error("获取收藏夹异常：",e);
@@ -68,7 +68,7 @@ public class HomeController extends BaseController{
 		}
 		List<CollectSummary> collects = null;
 	    if(null != userId && 0 != userId && userId.longValue() != getUserId().longValue()){
-			User user = userRepository.findOne(userId);
+			User user = userRepository.findById(userId).orElse(new User());
 			model.addAttribute("otherPeople", user);
 			collects =collectService.getCollects("otherpublic",userId, pageable,favorites.getId(),null);
 		}else{
@@ -88,13 +88,13 @@ public class HomeController extends BaseController{
 	public String simple(Model model,@RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "20") Integer size,@PathVariable("type") String type,
 	        @PathVariable("userId") Long userId) {
-		Sort sort = new Sort(Direction.DESC, "id");
-	    Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Direction.DESC, "id");
+	    Pageable pageable = PageRequest.of(page, size, sort);
 		model.addAttribute("type", type);
 		Favorites favorites = new Favorites();
 		if(!"my".equals(type)&&!"explore".equals(type) && !"garbage".equals(type)){
 			try {
-				favorites = favoritesRepository.findOne(Long.parseLong(type));
+				favorites = favoritesRepository.findById(Long.parseLong(type)).orElse(new Favorites());
 				favorites.setPublicCount(collectRepository.countByFavoritesIdAndTypeAndIsDelete(favorites.getId(), CollectType.PUBLIC, IsDelete.No));
 			} catch (Exception e) {
 				logger.error("获取收藏夹异常：",e);
@@ -102,7 +102,7 @@ public class HomeController extends BaseController{
 		}
 		List<CollectSummary> collects = null;
 	    if(null != userId && 0 != userId && userId.longValue() != getUserId().longValue()){
-			User user = userRepository.findOne(userId);
+			User user = userRepository.findById(userId).orElse(new User());
 			model.addAttribute("otherPeople", user);
 			collects =collectService.getCollects("otherpublic",userId, pageable,favorites.getId(),null);
 		}else{
@@ -128,10 +128,10 @@ public class HomeController extends BaseController{
 	@LoggerManage(description="个人首页")
 	public String userPageShow(Model model,@PathVariable("userId") Long userId,@PathVariable("favoritesId") Long favoritesId,@RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "15") Integer size){
-		User user = userRepository.findOne(userId);
+		User user = userRepository.findById(userId).orElse(new User());
 		Long collectCount = 0l;
-		Sort sort = new Sort(Direction.DESC, "id");
-	    Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Direction.DESC, "id");
+	    Pageable pageable = PageRequest.of(page, size, sort);
 	    List<CollectSummary> collects = null;
 	    Integer isFollow = 0;
 		if(getUserId().longValue() == userId.longValue()){
@@ -189,10 +189,10 @@ public class HomeController extends BaseController{
 		@LoggerManage(description="个人首页内容替换")
 		public String userContentShow(Model model,@PathVariable("userId") Long userId,@PathVariable("favoritesId") Long favoritesId,@RequestParam(value = "page", defaultValue = "0") Integer page,
 		        @RequestParam(value = "size", defaultValue = "15") Integer size){
-			User user = userRepository.findOne(userId);
+			User user = userRepository.findById(userId).orElse(new User());
 			Long collectCount = 0l;
-			Sort sort = new Sort(Direction.DESC, "id");
-		    Pageable pageable = new PageRequest(page, size, sort);
+			Sort sort = Sort.by(Direction.DESC, "id");
+		    Pageable pageable = PageRequest.of(page, size, sort);
 		    List<CollectSummary> collects = null;
 			if(getUserId().longValue() == userId.longValue()){
 				model.addAttribute("myself",IsDelete.YES.toString());
@@ -236,8 +236,8 @@ public class HomeController extends BaseController{
 	@LoggerManage(description="搜索")
 	public String search(Model model,@RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "20") Integer size, @PathVariable("key") String key) {
-		Sort sort = new Sort(Direction.DESC, "id");
-	    Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Direction.DESC, "id");
+	    Pageable pageable = PageRequest.of(page, size, sort);
 	    List<CollectSummary> myCollects=collectService.searchMy(getUserId(),key ,pageable);
 	    List<CollectSummary> otherCollects=collectService.searchOther(getUserId(), key, pageable);
 		model.addAttribute("myCollects", myCollects);
@@ -262,8 +262,8 @@ public class HomeController extends BaseController{
 	@RequestMapping(value="/notice/atMe")
 	public String atMe(Model model,@RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "15") Integer size) {
-		Sort sort = new Sort(Direction.DESC, "id");
-	    Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Direction.DESC, "id");
+	    Pageable pageable = PageRequest.of(page, size, sort);
 	    List<CollectSummary> collects=noticeService.getNoticeCollects("at", getUserId(), pageable);
 		model.addAttribute("collects", collects);
 		noticeRepository.updateReadedByUserId("read",getUserId(),"at");
@@ -281,8 +281,8 @@ public class HomeController extends BaseController{
 	@RequestMapping(value="/notice/commentMe")
 	public String commentMe(Model model,@RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "15") Integer size) {
-		Sort sort = new Sort(Direction.DESC, "id");
-	    Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Direction.DESC, "id");
+	    Pageable pageable = PageRequest.of(page, size, sort);
 	    List<CollectSummary> collects=noticeService.getNoticeCollects("comment", getUserId(), pageable);
 		model.addAttribute("collects", collects);
 		noticeRepository.updateReadedByUserId("read",getUserId(),"comment");
@@ -300,8 +300,8 @@ public class HomeController extends BaseController{
 	@RequestMapping(value="/notice/praiseMe")
 	public String praiseMe(Model model,@RequestParam(value = "page", defaultValue = "0") Integer page,
 	        @RequestParam(value = "size", defaultValue = "15") Integer size) {
-		Sort sort = new Sort(Direction.DESC, "id");
-	    Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Direction.DESC, "id");
+	    Pageable pageable = PageRequest.of(page, size, sort);
 	    List<CollectSummary> collects=noticeService.getNoticeCollects("praise", getUserId(), pageable);
 		model.addAttribute("collects", collects);
 		noticeRepository.updateReadedByUserId("read",getUserId(),"praise");
@@ -322,13 +322,13 @@ public class HomeController extends BaseController{
 						     @RequestParam(value = "size", defaultValue = "15") Integer size,
 							 @PathVariable("type") String type,@PathVariable("userId") Long userId) {
 
-		Sort sort = new Sort(Direction.DESC, "lastModifyTime");
-		Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Direction.DESC, "lastModifyTime");
+		Pageable pageable = PageRequest.of(page, size, sort);
 		model.addAttribute("type", "lookRecord");
 		Favorites favorites = new Favorites();
 
 		List<CollectSummary> collects = null;
-		User user = userRepository.findOne(userId);
+		User user = userRepository.findById(userId).orElse(new User());
 		model.addAttribute("otherPeople", user);
 		collects =lookRecordService.getLookRecords(this.getUserId(),pageable);
 
@@ -353,13 +353,13 @@ public class HomeController extends BaseController{
 								@RequestParam(value = "size", defaultValue = "20") Integer size,
 								@PathVariable("type") String type,@PathVariable("userId") Long userId) {
 
-		Sort sort = new Sort(Direction.DESC, "lastModifyTime");
-		Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Direction.DESC, "lastModifyTime");
+		Pageable pageable = PageRequest.of(page, size, sort);
 		model.addAttribute("type", "lookRecord");
 		Favorites favorites = new Favorites();
 
 		List<CollectSummary> collects = null;
-		User user = userRepository.findOne(userId);
+		User user = userRepository.findById(userId).orElse(new User());
 		model.addAttribute("otherPeople", user);
 		collects =lookRecordService.getLookRecords(this.getUserId(),pageable);
 
@@ -375,8 +375,8 @@ public class HomeController extends BaseController{
 	@LoggerManage(description = "私信我的页面展示")
 	public String letterMe(Model model, @RequestParam(value = "page", defaultValue = "0") Integer page,
 						   @RequestParam(value = "size", defaultValue = "15") Integer size){
-		Sort sort = new Sort(Sort.Direction.DESC, "id");
-		Pageable pageable = new PageRequest(page, size, sort);
+		Sort sort = Sort.by(Sort.Direction.DESC, "id");
+		Pageable pageable = PageRequest.of(page, size, sort);
 		List<LetterSummary> letterList = letterService.findLetter(getUserId(),pageable);
 		model.addAttribute("letterList",letterList);
 		noticeRepository.updateReadedByUserId("read",getUserId(),"letter");

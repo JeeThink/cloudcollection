@@ -1,19 +1,17 @@
 package com.cloudcollection.repository;
 
-import java.util.List;
-
-import javax.transaction.Transactional;
-
+import com.cloudcollection.domain.Collect;
+import com.cloudcollection.domain.enums.CollectType;
+import com.cloudcollection.domain.enums.IsDelete;
+import com.cloudcollection.domain.view.CollectView;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import com.cloudcollection.domain.Collect;
-import com.cloudcollection.domain.enums.CollectType;
-import com.cloudcollection.domain.enums.IsDelete;
-import com.cloudcollection.domain.view.CollectView;
+import javax.transaction.Transactional;
+import java.util.List;
 
 public interface CollectRepository extends JpaRepository<Collect, Long> {
 	
@@ -44,7 +42,7 @@ public interface CollectRepository extends JpaRepository<Collect, Long> {
 	Collect findByIdAndUserId(Long id,Long userId);
 	 
 	@Transactional
-    Long deleteById(Long id);
+    void deleteById(Long id);
 	
 	Page<Collect> findByFavoritesIdAndIsDelete(Long favoritesId,Pageable pageable,IsDelete isDelete);
 	

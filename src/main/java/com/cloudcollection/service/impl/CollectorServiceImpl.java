@@ -1,5 +1,6 @@
 package com.cloudcollection.service.impl;
 
+import com.cloudcollection.domain.User;
 import com.cloudcollection.domain.view.IndexCollectorView;
 import com.cloudcollection.repository.CollectorRepository;
 import com.cloudcollection.repository.UserRepository;
@@ -24,6 +25,7 @@ public class CollectorServiceImpl implements CollectorService {
 
     /**
      * 获取收藏家
+     *
      * @return
      */
     @Override
@@ -31,22 +33,22 @@ public class CollectorServiceImpl implements CollectorService {
         IndexCollectorView indexCollectorView = new IndexCollectorView();
         try {
             Long mostCollectUser = collectorRepository.getMostCollectUser();
-            indexCollectorView.setMostCollectUser(userRepository.findById(mostCollectUser));
+            indexCollectorView.setMostCollectUser(userRepository.findById(mostCollectUser).orElse(new User()));
             Long mostFollowedUser = collectorRepository.getMostFollowedUser(mostCollectUser);
-            indexCollectorView.setMostFollowedUser(userRepository.findById(mostFollowedUser));
-            String notUserIds = mostCollectUser+","+mostFollowedUser;
+            indexCollectorView.setMostFollowedUser(userRepository.findById(mostFollowedUser).orElse(new User()));
+            String notUserIds = mostCollectUser + "," + mostFollowedUser;
             Long mostPraisedUser = collectorRepository.getMostPraisedUser(notUserIds);
-            indexCollectorView.setMostPraisedUser(userRepository.findById(mostPraisedUser));
-            notUserIds += ","+mostPraisedUser;
+            indexCollectorView.setMostPraisedUser(userRepository.findById(mostPraisedUser).orElse(new User()));
+            notUserIds += "," + mostPraisedUser;
             Long mostCommentedUser = collectorRepository.getMostCommentedUser(notUserIds);
-            indexCollectorView.setMostCommentedUser(userRepository.findById(mostCommentedUser));
-            notUserIds += ","+ mostCommentedUser;
+            indexCollectorView.setMostCommentedUser(userRepository.findById(mostCommentedUser).orElse(new User()));
+            notUserIds += "," + mostCommentedUser;
             Long mostPopularUser = collectorRepository.getMostPopularUser(notUserIds);
-            indexCollectorView.setMostPopularUser(userRepository.findById(mostPopularUser));
-            notUserIds += ","+ mostPopularUser;
+            indexCollectorView.setMostPopularUser(userRepository.findById(mostPopularUser).orElse(new User()));
+            notUserIds += "," + mostPopularUser;
             Long mostActiveUser = collectorRepository.getMostActiveUser(notUserIds);
-            indexCollectorView.setMostActiveUser(userRepository.findById(mostActiveUser));
-        }catch (Exception e){
+            indexCollectorView.setMostActiveUser(userRepository.findById(mostActiveUser).orElse(new User()));
+        } catch (Exception e) {
             System.err.println(e);
         }
 
